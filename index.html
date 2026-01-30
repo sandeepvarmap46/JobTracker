@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>Job Application Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+            margin-top: 8px;
+        }
+
+        .btn-secondary {
+            background: #f1f2f6;
+            color: #333;
+            margin-top: 8px;
+        }
+
+        .job-list {
+            margin-top: 20px;
+        }
+
+        .job-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .job-item:active {
+            transform: scale(0.98);
+        }
+
+        .job-company {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .job-position {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .job-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .job-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-applied { background: #e3f2fd; color: #1976d2; }
+        .status-interview { background: #fff3e0; color: #f57c00; }
+        .status-interviewing { background: #fce4ec; color: #c2185b; }
+        .status-offer { background: #e8f5e9; color: #388e3c; }
+        .status-rejected { background: #ffebee; color: #d32f2f; }
+        .status-accepted { background: #c8e6c9; color: #2e7d32; }
+
+        .job-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .priority-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 8px;
+            box-shadow: 0 0 4px rgba(0,0,0,0.2);
+            vertical-align: middle;
+        }
+
+        .priority-high {
+            background: #ff4757;
+            box-shadow: 0 0 6px rgba(255, 71, 87, 0.6);
+        }
+
+        .priority-medium {
+            background: #ffc107;
+            box-shadow: 0 0 6px rgba(255, 193, 7, 0.6);
+        }
+
+        .priority-low {
+            background: #4caf50;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+        }
+
+        .priority-none {
+            background: #e0e0e0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .notification-badge {
+            display: inline-block;
+            background: #ff4757;
+            color: white;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .permission-banner {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .permission-banner button {
+            background: #ffc107;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .install-prompt {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .install-prompt button {
+            background: white;
+            color: #4CAF50;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+
+        #notesList::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #notesList::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #notesList::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        #notesList::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div style="text-align: center; color: white; padding: 40px; max-width: 400px;">
+            <div style="font-size: 80px; margin-bottom: 20px; animation: bounceIn 1s;">📋</div>
+            <h1 style="font-size: 32px; margin-bottom: 10px; animation: fadeIn 1s;">Job Tracker</h1>
+            <p style="font-size: 16px; opacity: 0.9; margin-bottom: 40px; animation: fadeIn 1.2s;">Track your applications with ease</p>
+            
+            <div id="nameInputSection" style="animation: slideUp 1s;">
+                <label style="display: block; font-size: 18px; margin-bottom: 16px; font-weight: 600;">What's your name?</label>
+                <input type="text" id="userNameInput" placeholder="Enter your name" style="width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <button onclick="saveUserName()" style="width: 100%; padding: 16px; border: none; border-radius: 12px; background: white; color: #667eea; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s;">
+                    Get Started →
+                </button>
+            </div>
+            
+            <div id="welcomeBackSection" style="display: none; animation: fadeIn 1s;">
+                <h2 style="font-size: 28px; margin-bottom: 16px;">Welcome back, <span id="displayUserName"></span>! 👋</h2>
+                <p style="font-size: 16px; opacity: 0.9; margin-bottom: 24px;">Ready to track your applications?</p>
+                <button onclick="enterApp()" style="width: 100%; padding: 16px; border: none; border-radius: 12px; background: white; color: #667eea; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                    Continue →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainApp" style="display: none;">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>📋 Job Tracker</h1>
+                    <p id="greetingMessage">Track your applications & get 6-month reminders</p>
+                </div>
+                <button onclick="openMenu()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">⋮</button>
+            </div>
+        </div>
+
+        <div id="permissionBanner" class="permission-banner" style="display: none;">
+            <div>📬 Want reminders after 6 months?</div>
+            <button onclick="requestNotificationPermission()">Allow Notifications</button>
+        </div>
+
+        <div id="installPrompt" class="install-prompt">
+            <span>📱 Install app for better experience</span>
+            <button onclick="installApp()">Install</button>
+        </div>
+
+        <div class="card" style="padding: 0; margin-bottom: 12px; overflow: hidden;">
+            <div style="display: flex; border-bottom: 2px solid #f0f0f0;">
+                <button class="tab-btn active" onclick="switchTab('active')" id="activeTab" style="flex: 1; padding: 16px; border: none; background: white; font-weight: 600; font-size: 16px; cursor: pointer; color: #667eea; border-bottom: 3px solid #667eea;">
+                    📋 Active <span id="activeCount" class="notification-badge" style="background: #667eea;">0</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('history')" id="historyTab" style="flex: 1; padding: 16px; border: none; background: white; font-weight: 600; font-size: 16px; cursor: pointer; color: #999; border-bottom: 3px solid transparent;">
+                    📚 History <span id="historyCount" class="notification-badge" style="background: #999;">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="card" style="padding: 12px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; background: #f5f5f5; border-radius: 8px; padding: 4px 12px;">
+                <span style="font-size: 18px; margin-right: 8px;">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search company or position..." onkeyup="searchJobs()" style="flex: 1; border: none; background: transparent; padding: 8px; font-size: 14px; outline: none;">
+                <button onclick="clearSearch()" id="clearSearchBtn" style="display: none; background: none; border: none; color: #999; font-size: 18px; cursor: pointer; padding: 4px;">✕</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 20px; color: #333;">➕ Add New Application</h2>
+            <form id="jobForm">
+                <div class="form-group">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" id="companyName" placeholder="e.g., Google, Microsoft" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="position">Position/Role</label>
+                    <input type="text" id="position" placeholder="e.g., Software Engineer" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" required>
+                        <option value="Applied">Applied</option>
+                        <option value="Interview Scheduled">Interview Scheduled</option>
+                        <option value="Interviewing">Interviewing</option>
+                        <option value="Offer Received">Offer Received</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Accepted">Accepted</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" required style="background-image: linear-gradient(to right, transparent 0%, transparent 100%);">
+                        <option value="high">🔴 High Priority</option>
+                        <option value="medium" selected>🟡 Medium Priority</option>
+                        <option value="low">🟢 Low Priority</option>
+                        <option value="none">⚪ No Priority</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Add Application</button>
+            </form>
+        </div>
+
+        <div class="job-list" id="jobList"></div>
+
+        <!-- Made in India Footer -->
+        <div style="text-align: center; padding: 24px 16px; margin-top: 20px; color: white; font-size: 14px;">
+            <div style="margin-bottom: 8px; font-weight: 600; font-size: 16px;">Proudly Made in India 🇮🇳</div>
+            <div style="opacity: 0.9;">Crafted with ❤️ for job seekers</div>
+        </div>
+    </div>
+
+    <!-- Modal for Job Details -->
+    <div id="jobModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="modal-header" id="modalTitle"></div>
+            
+            <div class="form-group">
+                <label for="modalStatus">Update Status</label>
+                <select id="modalStatus">
+                    <option value="Applied">Applied</option>
+                    <option value="Interview Scheduled">Interview Scheduled</option>
+                    <option value="Interviewing">Interviewing</option>
+                    <option value="Offer Received">Offer Received</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Accepted">Accepted</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalPriority">Priority Level</label>
+                <select id="modalPriority">
+                    <option value="high">🔴 High Priority</option>
+                    <option value="medium">🟡 Medium Priority</option>
+                    <option value="low">🟢 Low Priority</option>
+                    <option value="none">⚪ No Priority</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="noteInput">📝 Add Note</label>
+                <textarea id="noteInput" placeholder="e.g., Called HR today, Interview went well, etc." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; min-height: 80px; resize: vertical;"></textarea>
+                <button class="btn btn-secondary" onclick="addNote()" style="margin-top: 8px; padding: 8px 16px; font-size: 14px;">➕ Add Note</button>
+            </div>
+            
+            <div id="notesList" style="max-height: 200px; overflow-y: auto; margin-bottom: 16px;"></div>
+            
+            <button class="btn btn-primary" onclick="updateJobStatus()">Update Status</button>
+            <button class="btn btn-secondary" onclick="toggleArchive()" id="archiveBtn">📦 Archive</button>
+            <button class="btn btn-danger" onclick="deleteJob()">Delete Application</button>
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Menu Modal -->
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeMenu()">&times;</button>
+            <div class="modal-header">⚙️ Settings & More</div>
+            
+            <div style="margin-bottom: 20px; padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                <div style="font-weight: 600; margin-bottom: 8px;">👤 Signed in as:</div>
+                <div style="font-size: 18px; color: #667eea;" id="menuUserName"></div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="exportData(); closeMenu();" style="margin-bottom: 8px;">
+                💾 Backup Data
+            </button>
+            
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click(); closeMenu();" style="margin-bottom: 8px;">
+                📥 Restore from Backup
+            </button>
+            
+            <button class="btn btn-secondary" onclick="manageNotifications()" style="margin-bottom: 8px;">
+                🔔 Notification Settings
+            </button>
+            
+            <button class="btn btn-secondary" onclick="changeUserName()" style="margin-bottom: 8px;">
+                ✏️ Change Name
+            </button>
+            
+            <button class="btn btn-secondary" onclick="showAbout()" style="margin-bottom: 8px;">
+                ℹ️ About App
+            </button>
+            
+            <button class="btn btn-secondary" onclick="closeMenu()">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+
+    <script>
+        // State
+        let jobs = [];
+        let archivedJobs = [];
+        let selectedJobId = null;
+        let currentTab = 'active';
+        let currentSearchQuery = '';
+        let userName = '';
+        let deferredPrompt;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserName();
+            loadJobs();
+            loadArchivedJobs();
+            checkNotificationPermission();
+            checkScheduledNotifications();
+            
+            // Show welcome screen or main app
+            if (!userName) {
+                document.getElementById('welcomeScreen').style.display = 'flex';
+                document.getElementById('nameInputSection').style.display = 'block';
+            } else {
+                showWelcomeBack();
+            }
+            
+            // PWA Install prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('installPrompt').style.display = 'flex';
+            });
+        });
+
+        function loadUserName() {
+            const saved = localStorage.getItem('jobTrackerUserName');
+            if (saved) {
+                userName = saved;
+            }
+        }
+
+        function saveUserName() {
+            const input = document.getElementById('userNameInput').value.trim();
+            if (!input) {
+                showToast('⚠️ Please enter your name');
+                return;
+            }
+            userName = input;
+            localStorage.setItem('jobTrackerUserName', userName);
+            showWelcomeBack();
+        }
+
+        function showWelcomeBack() {
+            document.getElementById('displayUserName').textContent = userName;
+            document.getElementById('nameInputSection').style.display = 'none';
+            document.getElementById('welcomeBackSection').style.display = 'block';
+            document.getElementById('welcomeScreen').style.display = 'flex';
+            
+            // Auto-enter after 2 seconds
+            setTimeout(() => {
+                enterApp();
+            }, 2000);
+        }
+
+        function enterApp() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            updateGreeting();
+            renderJobs();
+            updateCounts();
+        }
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = '';
+            
+            if (hour < 12) {
+                greeting = 'Good morning';
+            } else if (hour < 18) {
+                greeting = 'Good afternoon';
+            } else {
+                greeting = 'Good evening';
+            }
+            
+            document.getElementById('greetingMessage').textContent = `${greeting}, ${userName}! 👋`;
+            document.getElementById('menuUserName').textContent = userName;
+        }
+
+        function changeUserName() {
+            const newName = prompt('Enter your new name:', userName);
+            if (newName && newName.trim()) {
+                userName = newName.trim();
+                localStorage.setItem('jobTrackerUserName', userName);
+                updateGreeting();
+                showToast('✅ Name updated!');
+            }
+            closeMenu();
+        }
+
+        function openMenu() {
+            updateGreeting();
+            document.getElementById('menuModal').style.display = 'block';
+        }
+
+        function closeMenu() {
+            document.getElementById('menuModal').style.display = 'none';
+        }
+
+        function showAbout() {
+            alert('Job Tracker v1.0\n\n📋 Track your job applications\n🔔 Get 6-month reminders\n💾 Backup & restore data\n🔍 Search functionality\n\n100% Private - All data stored locally on your device.\n\nMade with ❤️');
+            closeMenu();
+        }
+
+        function manageNotifications() {
+            if (!('Notification' in window)) {
+                alert('❌ Notifications are not supported in this browser.');
+                closeMenu();
+                return;
+            }
+
+            const permission = Notification.permission;
+            
+            if (permission === 'granted') {
+                const choice = confirm('✅ Notifications are enabled!\n\nYou will receive reminders 6 months after applying to jobs.\n\nDo you want to disable notifications?');
+                if (choice) {
+                    alert('To disable notifications:\n\n1. Go to browser Settings\n2. Find Site Settings or Permissions\n3. Select Notifications\n4. Block this site\n\nNote: You can re-enable anytime!');
+                }
+            } else if (permission === 'denied') {
+                alert('🔕 Notifications are blocked.\n\nTo enable:\n\n1. Go to browser Settings\n2. Find Site Settings or Permissions\n3. Select Notifications\n4. Allow this site\n\nThen refresh the page.');
+            } else {
+                // Default - ask permission
+                Notification.requestPermission().then(perm => {
+                    if (perm === 'granted') {
+                        showToast('✅ Notifications enabled!');
+                        document.getElementById('permissionBanner').style.display = 'none';
+                    } else {
+                        showToast('⚠️ Notifications not enabled');
+                    }
+                });
+            }
+            
+            closeMenu();
+        }
+
+        // Form submission
+        document.getElementById('jobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            addJob();
+        });
+
+        function addJob() {
+            const companyName = document.getElementById('companyName').value.trim();
+            const position = document.getElementById('position').value.trim();
+            const status = document.getElementById('status').value;
+            const priority = document.getElementById('priority').value;
+
+            if (!companyName || !position) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const job = {
+                id: Date.now(),
+                companyName: companyName,
+                position: position,
+                status: status,
+                priority: priority,
+                appliedDate: Date.now(),
+                notificationScheduled: true
+            };
+
+            jobs.unshift(job);
+            saveJobs();
+            renderJobs();
+            scheduleNotification(job);
+
+            // Clear form
+            document.getElementById('jobForm').reset();
+            
+            // Show notification banner only after first job
+            showNotificationBannerIfNeeded();
+            
+            // Show success message
+            showToast('✅ Application added! You\'ll get a reminder in 6 months.');
+        }
+
+        function scheduleNotification(job) {
+            // Calculate 6 months from now (approximately 180 days)
+            const sixMonthsInMs = 180 * 24 * 60 * 60 * 1000;
+            const notificationTime = job.appliedDate + sixMonthsInMs;
+            
+            // For testing, use 1 minute: const notificationTime = Date.now() + 60000;
+            
+            // Store notification data
+            const notification = {
+                id: job.id,
+                companyName: job.companyName,
+                position: job.position,
+                scheduledTime: notificationTime
+            };
+            
+            let scheduledNotifications = JSON.parse(localStorage.getItem('scheduledNotifications') || '[]');
+            scheduledNotifications.push(notification);
+            localStorage.setItem('scheduledNotifications', JSON.stringify(scheduledNotifications));
+            
+            console.log('Notification scheduled for:', new Date(notificationTime));
+        }
+
+        function checkScheduledNotifications() {
+            if (!('Notification' in window) || Notification.permission !== 'granted') {
+                return;
+            }
+
+            let scheduledNotifications = JSON.parse(localStorage.getItem('scheduledNotifications') || '[]');
+            const now = Date.now();
+            const fired = [];
+
+            scheduledNotifications.forEach(notification => {
+                if (now >= notification.scheduledTime) {
+                    showNotification(notification.companyName, notification.position);
+                    fired.push(notification.id);
+                }
+            });
+
+            // Remove fired notifications
+            if (fired.length > 0) {
+                scheduledNotifications = scheduledNotifications.filter(n => !fired.includes(n.id));
+                localStorage.setItem('scheduledNotifications', JSON.stringify(scheduledNotifications));
+            }
+
+            // Check again in 1 minute
+            setTimeout(checkScheduledNotifications, 60000);
+        }
+
+        function showNotification(companyName, position) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('Job Application Follow-up', {
+                    body: `It's been 6 months since you applied to ${companyName} for ${position}. Consider following up!`,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="75">📋</text></svg>',
+                    tag: 'job-tracker-' + Date.now(),
+                    requireInteraction: true
+                });
+
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        document.getElementById('permissionBanner').style.display = 'none';
+                        showToast('✅ Notifications enabled! You\'ll get 6-month reminders.');
+                    } else if (permission === 'denied') {
+                        document.getElementById('permissionBanner').innerHTML = 
+                            '<div style="font-size: 13px;">⚠️ Notifications blocked. Enable them in browser settings → Site permissions → Notifications.</div>';
+                    }
+                });
+            }
+        }
+
+        function checkNotificationPermission() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    // Only show banner after user has added their first job
+                    // Don't auto-request on mobile
+                } else if (Notification.permission === 'denied') {
+                    // Don't show anything if denied
+                }
+            }
+        }
+        
+        function showNotificationBannerIfNeeded() {
+            // Show banner only after first job is added and permission is default
+            if ('Notification' in window && Notification.permission === 'default' && jobs.length > 0) {
+                document.getElementById('permissionBanner').style.display = 'block';
+            }
+        }
+
+        function renderJobs() {
+            const jobList = document.getElementById('jobList');
+            let displayJobs = currentTab === 'active' ? jobs : archivedJobs;
+            
+            // Apply search filter
+            if (currentSearchQuery) {
+                displayJobs = displayJobs.filter(job => {
+                    const searchLower = currentSearchQuery.toLowerCase();
+                    return job.companyName.toLowerCase().includes(searchLower) ||
+                           job.position.toLowerCase().includes(searchLower);
+                });
+            }
+            
+            if (displayJobs.length === 0) {
+                const emptyMessage = currentSearchQuery 
+                    ? 'No applications found matching your search.'
+                    : (currentTab === 'active' 
+                        ? 'No active applications yet.<br>Add your first job application above!'
+                        : 'No archived applications yet.<br>Archive completed applications from Active tab!');
+                    
+                jobList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">${currentSearchQuery ? '🔍' : (currentTab === 'active' ? '📭' : '📚')}</div>
+                        <p>${emptyMessage}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            jobList.innerHTML = displayJobs.map(job => {
+                const date = new Date(job.appliedDate);
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const statusClass = 'status-' + job.status.toLowerCase().replace(/\s+/g, '-');
+                
+                // Set default priority if not set
+                const priority = job.priority || 'none';
+                const priorityClass = 'priority-' + priority;
+                
+                const archivedBadge = job.archivedDate ? `
+                    <div style="font-size: 11px; color: #999; margin-top: 4px;">
+                        Archived: ${new Date(job.archivedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </div>
+                ` : '';
+                
+                const notesCount = job.notes && job.notes.length > 0 ? `
+                    <span style="font-size: 12px; color: #667eea; margin-left: 8px;">📝 ${job.notes.length} note${job.notes.length > 1 ? 's' : ''}</span>
+                ` : '';
+                
+                return `
+                    <div class="job-item" onclick="openJobModal(${job.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div class="job-company">${escapeHtml(job.companyName)}</div>
+                                <div class="job-position">${escapeHtml(job.position)}</div>
+                                <div class="job-meta">
+                                    <span class="job-status ${statusClass}">${job.status}</span>
+                                    <span class="job-date">Applied: ${dateStr}${notesCount}</span>
+                                </div>
+                                ${archivedBadge}
+                            </div>
+                            <div class="priority-dot ${priorityClass}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function searchJobs() {
+            const searchInput = document.getElementById('searchInput');
+            currentSearchQuery = searchInput.value.trim();
+            
+            // Show/hide clear button
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (currentSearchQuery) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+            
+            renderJobs();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearchQuery = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            renderJobs();
+        }
+
+        function openJobModal(jobId) {
+            selectedJobId = jobId;
+            const job = jobs.find(j => j.id === jobId) || archivedJobs.find(j => j.id === jobId);
+            
+            if (!job) return;
+            
+            // Initialize notes array if it doesn't exist
+            if (!job.notes) {
+                job.notes = [];
+            }
+            
+            // Set default priority if not set
+            if (!job.priority) {
+                job.priority = 'none';
+            }
+            
+            // Update archive button text based on whether job is archived
+            const archiveBtn = document.getElementById('archiveBtn');
+            const isArchived = archivedJobs.find(j => j.id === jobId);
+            archiveBtn.textContent = isArchived ? '📋 Unarchive' : '📦 Archive';
+            
+            document.getElementById('modalTitle').textContent = `${job.companyName} - ${job.position}`;
+            document.getElementById('modalStatus').value = job.status;
+            document.getElementById('modalPriority').value = job.priority;
+            document.getElementById('noteInput').value = '';
+            
+            // Display notes
+            displayNotes(job.notes);
+            
+            document.getElementById('jobModal').style.display = 'block';
+        }
+        
+        function displayNotes(notes) {
+            const notesList = document.getElementById('notesList');
+            
+            if (!notes || notes.length === 0) {
+                notesList.innerHTML = '<div style="text-align: center; color: #999; padding: 16px; font-size: 14px;">No notes yet. Add your first note above!</div>';
+                return;
+            }
+            
+            notesList.innerHTML = notes.map((note, index) => {
+                const noteDate = new Date(note.timestamp);
+                const dateStr = noteDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = noteDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 8px; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                            <div style="font-size: 11px; color: #999;">${dateStr} at ${timeStr}</div>
+                            <button onclick="deleteNote(${index})" style="background: none; border: none; color: #ff4757; cursor: pointer; font-size: 16px; padding: 0; line-height: 1;">✕</button>
+                        </div>
+                        <div style="color: #333; font-size: 14px; white-space: pre-wrap; word-break: break-word;">${escapeHtml(note.text)}</div>
+                    </div>
+                `;
+            }).reverse().join(''); // Show newest first
+        }
+        
+        function addNote() {
+            const noteText = document.getElementById('noteInput').value.trim();
+            
+            if (!noteText) {
+                showToast('⚠️ Please enter a note');
+                return;
+            }
+            
+            const job = jobs.find(j => j.id === selectedJobId) || archivedJobs.find(j => j.id === selectedJobId);
+            
+            if (!job) return;
+            
+            // Initialize notes array if it doesn't exist
+            if (!job.notes) {
+                job.notes = [];
+            }
+            
+            // Add new note
+            job.notes.push({
+                text: noteText,
+                timestamp: Date.now()
+            });
+            
+            // Save to appropriate list
+            if (jobs.find(j => j.id === selectedJobId)) {
+                saveJobs();
+            } else {
+                saveArchivedJobs();
+            }
+            
+            // Clear input and refresh display
+            document.getElementById('noteInput').value = '';
+            displayNotes(job.notes);
+            renderJobs(); // Update notes count in list
+            showToast('✅ Note added!');
+        }
+        
+        function deleteNote(noteIndex) {
+            if (!confirm('Delete this note?')) return;
+            
+            const job = jobs.find(j => j.id === selectedJobId) || archivedJobs.find(j => j.id === selectedJobId);
+            
+            if (!job || !job.notes) return;
+            
+            // Remove note (remember we display reversed, so calculate correct index)
+            const actualIndex = job.notes.length - 1 - noteIndex;
+            job.notes.splice(actualIndex, 1);
+            
+            // Save to appropriate list
+            if (jobs.find(j => j.id === selectedJobId)) {
+                saveJobs();
+            } else {
+                saveArchivedJobs();
+            }
+            
+            displayNotes(job.notes);
+            renderJobs(); // Update notes count in list
+            showToast('🗑️ Note deleted');
+        }
+
+        function closeModal() {
+            document.getElementById('jobModal').style.display = 'none';
+            selectedJobId = null;
+        }
+
+        function updateJobStatus() {
+            const newStatus = document.getElementById('modalStatus').value;
+            const newPriority = document.getElementById('modalPriority').value;
+            let jobIndex = jobs.findIndex(j => j.id === selectedJobId);
+            let isArchived = false;
+            
+            if (jobIndex === -1) {
+                jobIndex = archivedJobs.findIndex(j => j.id === selectedJobId);
+                isArchived = true;
+            }
+            
+            if (jobIndex !== -1) {
+                if (isArchived) {
+                    archivedJobs[jobIndex].status = newStatus;
+                    archivedJobs[jobIndex].priority = newPriority;
+                    saveArchivedJobs();
+                } else {
+                    jobs[jobIndex].status = newStatus;
+                    jobs[jobIndex].priority = newPriority;
+                    saveJobs();
+                }
+                renderJobs();
+                updateCounts();
+                closeModal();
+                showToast('✅ Updated successfully!');
+            }
+        }
+
+        function deleteJob() {
+            if (confirm('Are you sure you want to delete this application?')) {
+                // Try to find in active jobs first
+                let deleted = false;
+                let wasActive = false;
+                
+                const activeIndex = jobs.findIndex(j => j.id === selectedJobId);
+                if (activeIndex !== -1) {
+                    jobs.splice(activeIndex, 1);
+                    saveJobs();
+                    deleted = true;
+                    wasActive = true;
+                }
+                
+                // If not found, try archived jobs
+                if (!deleted) {
+                    const archivedIndex = archivedJobs.findIndex(j => j.id === selectedJobId);
+                    if (archivedIndex !== -1) {
+                        archivedJobs.splice(archivedIndex, 1);
+                        saveArchivedJobs();
+                        deleted = true;
+                    }
+                }
+                
+                if (deleted) {
+                    // Remove scheduled notification
+                    let scheduledNotifications = JSON.parse(localStorage.getItem('scheduledNotifications') || '[]');
+                    scheduledNotifications = scheduledNotifications.filter(n => n.id !== selectedJobId);
+                    localStorage.setItem('scheduledNotifications', JSON.stringify(scheduledNotifications));
+                    
+                    renderJobs();
+                    updateCounts();
+                    closeModal();
+                    showToast('🗑️ Application deleted');
+                }
+            }
+        }
+
+        function saveJobs() {
+            localStorage.setItem('jobTrackerJobs', JSON.stringify(jobs));
+            updateCounts();
+        }
+
+        function loadJobs() {
+            const saved = localStorage.getItem('jobTrackerJobs');
+            if (saved) {
+                jobs = JSON.parse(saved);
+            }
+        }
+
+        function loadArchivedJobs() {
+            const saved = localStorage.getItem('jobTrackerArchived');
+            if (saved) {
+                archivedJobs = JSON.parse(saved);
+            }
+        }
+
+        function saveArchivedJobs() {
+            localStorage.setItem('jobTrackerArchived', JSON.stringify(archivedJobs));
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Clear search when switching tabs
+            clearSearch();
+            
+            // Update tab styling
+            const activeTab = document.getElementById('activeTab');
+            const historyTab = document.getElementById('historyTab');
+            
+            if (tab === 'active') {
+                activeTab.style.color = '#667eea';
+                activeTab.style.borderBottomColor = '#667eea';
+                historyTab.style.color = '#999';
+                historyTab.style.borderBottomColor = 'transparent';
+            } else {
+                activeTab.style.color = '#999';
+                activeTab.style.borderBottomColor = 'transparent';
+                historyTab.style.color = '#667eea';
+                historyTab.style.borderBottomColor = '#667eea';
+            }
+            
+            renderJobs();
+        }
+
+        function toggleArchive() {
+            const job = jobs.find(j => j.id === selectedJobId);
+            const archivedJob = archivedJobs.find(j => j.id === selectedJobId);
+            
+            if (job) {
+                // Archive the job
+                if (confirm('Archive this application? You can find it in the History tab.')) {
+                    job.archivedDate = Date.now();
+                    archivedJobs.unshift(job);
+                    jobs = jobs.filter(j => j.id !== selectedJobId);
+                    saveJobs();
+                    saveArchivedJobs();
+                    renderJobs();
+                    updateCounts();
+                    closeModal();
+                    showToast('📦 Application archived!');
+                }
+            } else if (archivedJob) {
+                // Unarchive the job
+                if (confirm('Move this application back to Active?')) {
+                    delete archivedJob.archivedDate;
+                    jobs.unshift(archivedJob);
+                    archivedJobs = archivedJobs.filter(j => j.id !== selectedJobId);
+                    saveJobs();
+                    saveArchivedJobs();
+                    renderJobs();
+                    updateCounts();
+                    closeModal();
+                    showToast('📋 Application restored to Active!');
+                }
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('activeCount').textContent = jobs.length;
+            document.getElementById('historyCount').textContent = archivedJobs.length;
+            
+            // Update badge colors
+            const activeCount = document.getElementById('activeCount');
+            const historyCount = document.getElementById('historyCount');
+            
+            activeCount.style.background = currentTab === 'active' ? '#667eea' : '#999';
+            historyCount.style.background = currentTab === 'history' ? '#667eea' : '#999';
+        }
+
+        function loadJobs() {
+            const saved = localStorage.getItem('jobTrackerJobs');
+            if (saved) {
+                jobs = JSON.parse(saved);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #333;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 2000;
+                animation: slideUp 0.3s ease-out;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function exportData() {
+            const data = {
+                userName: userName,
+                jobs: jobs,
+                archivedJobs: archivedJobs,
+                scheduledNotifications: JSON.parse(localStorage.getItem('scheduledNotifications') || '[]'),
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `job-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('✅ Backup downloaded! Keep this file safe.');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (confirm(`This will replace your current data with the backup from ${new Date(data.exportDate).toLocaleDateString()}. Continue?`)) {
+                        if (data.userName) {
+                            userName = data.userName;
+                            localStorage.setItem('jobTrackerUserName', userName);
+                            updateGreeting();
+                        }
+                        jobs = data.jobs || [];
+                        archivedJobs = data.archivedJobs || [];
+                        localStorage.setItem('scheduledNotifications', JSON.stringify(data.scheduledNotifications || []));
+                        saveJobs();
+                        saveArchivedJobs();
+                        renderJobs();
+                        updateCounts();
+                        showToast('✅ Data restored successfully!');
+                    }
+                } catch (error) {
+                    alert('❌ Invalid backup file. Please select a valid backup.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset file input
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installPrompt').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('jobModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
